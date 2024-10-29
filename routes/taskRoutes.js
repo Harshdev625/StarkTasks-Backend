@@ -8,6 +8,6 @@ router.use(authMiddleware);
 
 router.get("/", taskController.getAllTasks);
 router.get("/:id", taskController.getTaskById);
-router.put("/:id/complete", taskController.markTaskCompleted);
+router.patch("/:id/complete", taskController.markTaskCompleted);
 
 module.exports = router;

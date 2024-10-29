@@ -9,9 +9,8 @@ router.use(authMiddleware, adminMiddleware);
 
 // Task management routes
 router.post("/tasks", adminController.createTask);
-router.put("/tasks/:id", adminController.updateTask);
+router.patch("/tasks/:id", adminController.updateTask);
 router.delete("/tasks/:id", adminController.deleteTask);
 router.get("/fetchallusers", adminController.getAllUsers);
-
 
 module.exports = router;

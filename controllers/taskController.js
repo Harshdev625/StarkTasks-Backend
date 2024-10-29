@@ -7,7 +7,7 @@ exports.getAllTasks = async (req, res) => {
 
     if (role === "admin") {
       tasks = await Task.find()
-        .populate("assignedTo.user", "username")
+        .populate("assignedTo.user", "username email")
         .sort({ createdAt: -1 });
     } else {
       tasks = await Task.find({ "assignedTo.user": userId })
@@ -17,10 +17,10 @@ exports.getAllTasks = async (req, res) => {
 
     res.json(tasks);
   } catch (error) {
+    // console.error("Error fetching tasks:", error);
     res.status(500).json({ error: "Failed to fetch tasks" });
   }
 };
-
 
 // Fetch a task by ID
 exports.getTaskById = async (req, res) => {
@@ -52,13 +52,23 @@ exports.markTaskCompleted = async (req, res) => {
         .json({ error: "You are not authorized to complete this task" });
     }
 
-    // Set the task status based on the due date
-    task.status = new Date() > task.dueDate ? "late" : "completed";
+    // Mark the user as completed
     assignedUser.completed = true;
 
+    // Check if all users have completed the task
+    const allUsersCompleted = task.assignedTo.every((user) => user.completed);
+
+    // Set the task status based on whether all assigned users have completed it
+    if (allUsersCompleted) {
+      task.status = new Date() > task.dueDate ? "late" : "completed";
+    }
+
     await task.save();
+
+    // Return the updated task, ensuring all assigned users are included
     res.json(task);
   } catch (error) {
+    console.error("Error updating task status:", error);
     res.status(400).json({ error: "Failed to update task status" });
   }
 };
